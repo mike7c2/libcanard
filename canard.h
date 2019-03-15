@@ -159,8 +159,9 @@ typedef enum
 typedef struct CanardInstance CanardInstance;
 typedef struct CanardRxTransfer CanardRxTransfer;
 typedef struct CanardRxState CanardRxState;
+#ifndef CANARD_NO_TX_QUEUE
 typedef struct CanardTxQueueItem CanardTxQueueItem;
-
+#endif
 /**
  * The application must implement this function and supply a pointer to it to the library during initialization.
  * The library calls this function to determine whether the transfer should be received.
@@ -265,8 +266,9 @@ struct CanardInstance
     CanardPoolAllocator allocator;                  ///< Pool allocator
 
     CanardRxState* rx_states;                       ///< RX transfer states
+#ifndef CANARD_NO_TX_QUEUE
     CanardTxQueueItem* tx_queue;                    ///< TX frames awaiting transmission
-
+#endif
     void* user_reference;                           ///< User pointer that can link this instance with other objects
 };
 
@@ -405,7 +407,7 @@ int16_t canardRequestOrRespond(CanardInstance* ins,             ///< Library ins
                                CanardRequestResponse kind,      ///< Refer to CanardRequestResponse
                                const void* payload,             ///< Transfer payload
                                uint16_t payload_len);           ///< Length of the above, in bytes
-
+#ifndef CANARD_NO_TX_QUEUE
 /**
  * Returns a pointer to the top priority frame in the TX queue.
  * Returns NULL if the TX queue is empty.
@@ -421,6 +423,7 @@ const CanardCANFrame* canardPeekTxQueue(const CanardInstance* ins);
  * is NOT allowed, because it may change the frame at the top of the TX queue.
  */
 void canardPopTxQueue(CanardInstance* ins);
+#endif
 
 /**
  * Processes a received CAN frame with a timestamp.
@@ -528,6 +531,13 @@ CanardPoolAllocatorStatistics canardGetPoolAllocatorStatistics(CanardInstance* i
  */
 uint16_t canardConvertNativeFloatToFloat16(float value);
 float canardConvertFloat16ToNativeFloat(uint16_t value);
+
+#ifdef CANARD_TX_NO_QUEUE
+/**
+ * Function to be defined by user, pushes an item to the users tx queue
+ */
+void CanardPushTxQueue(CanardInstance* ins, CanardCANFrame frame);
+#endif
 
 /// Abort the build if the current platform is not supported.
 CANARD_STATIC_ASSERT(((uint32_t)CANARD_MULTIFRAME_RX_PAYLOAD_HEAD_SIZE) < 32,

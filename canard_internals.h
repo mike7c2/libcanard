@@ -66,7 +66,7 @@ CANARD_INTERNAL CanardBufferBlock* createBufferBlock(CanardPoolAllocator* alloca
 CANARD_INTERNAL CanardTransferType extractTransferType(uint32_t id);
 
 CANARD_INTERNAL uint16_t extractDataType(uint32_t id);
-
+#ifndef CANARD_NO_TX_QUEUE
 CANARD_INTERNAL void pushTxQueue(CanardInstance* ins,
                                  CanardTxQueueItem* item);
 
@@ -74,7 +74,7 @@ CANARD_INTERNAL bool isPriorityHigher(uint32_t id,
                                       uint32_t rhs);
 
 CANARD_INTERNAL CanardTxQueueItem* createTxItem(CanardPoolAllocator* allocator);
-
+#endif
 CANARD_INTERNAL void prepareForNextTransfer(CanardRxState* state);
 
 CANARD_INTERNAL int16_t computeTransferIDForwardDistance(uint8_t a,
